@@ -264,6 +264,7 @@ namespace solidity::langutil
 	K(Typedef, "typedef", 0)                                           \
 	K(TypeOf, "typeof", 0)                                             \
 	K(Unchecked, "unchecked", 0)                                       \
+	K(Unicode, "unicode", 0)                                           \
 	K(Var, "var", 0)                                                   \
 	\
 	/* Illegal token - not able to scan. */                            \
