@@ -1,10 +1,9 @@
 contract test {
     function f() public pure returns (string memory) {
-        return "😃, 😭, and 😈";
+        return "hello world";
     }
     function g() public pure returns (string memory) {
-        return unicode"😃, 😭, and 😈";
+        return unicode"hello world";
     }
 }
 // ----
-// ParserError 8936: (86-88): Invalid character in string.

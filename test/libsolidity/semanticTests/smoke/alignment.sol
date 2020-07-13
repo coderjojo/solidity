@@ -5,7 +5,7 @@ contract C {
 contract D {
     bool public stateBool = true;
     uint256 public stateDecimal = 42;
-    bytes32 public stateBytes = "\x42\x00\xef";
+    bytes32 public stateBytes = hex"4200ef";
 
     function internalStateDecimal() public returns (uint256) {
         return (new C()).stateDecimal();
