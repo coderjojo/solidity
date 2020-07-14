@@ -2117,8 +2117,6 @@ public:
 
 	SubDenomination subDenomination() const { return m_subDenomination; }
 
-	bool isUnicode() const;
-
 	/// @returns true if this is a number with a hex prefix.
 	bool isHexNumber() const;
 
