@@ -7,6 +7,7 @@ Breaking changes:
  * Deprecated the identifier `now`.
  * Disallow `gwei` as identifier.
  * Disallow non-printable characters in string literals.
+ * Introduce Unicode string literals: ``unicode"😃"``.
  * JSON AST: Removes members with ``null`` value from JSON output.
  * Parser: NatSpec comments on variables are only allowed for public state variables.
  * Type Checker: Disallow shifts by signed types.
