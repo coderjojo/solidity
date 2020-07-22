@@ -477,7 +477,7 @@ jobs:
     <<: *build_ubuntu2004
     environment:
       CMAKE_BUILD_TYPE: Debug
-      CMAKE_OPTIONS: -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/cxx20.cmake -DUSE_CVC4=OFF
+      CMAKE_OPTIONS: -DCMAKE_CXX_STANDARD=20 -DUSE_CVC4=OFF
     steps:
       - checkout
       - run: *run_build
