@@ -2412,6 +2412,29 @@ string YulUtilFunctions::conversionFunctionSpecial(Type const& _from, Type const
 			.render();
 		}
 
+		if (_from.category() == Type::Category::Array && _to.category() == Type::Category::Array)
+		{
+			auto const& fromArrayType = dynamic_cast<ArrayType const&>(_from);
+			auto const& toArrayType = dynamic_cast<ArrayType const&>(_to);
+
+			solAssert(!fromArrayType.baseType()->isDynamicallyEncoded(), "");
+			solAssert(fromArrayType.isByteArray() && toArrayType.isByteArray(), "");
+			solAssert(toArrayType.location() == DataLocation::Memory, "");
+			solAssert(fromArrayType.location() == DataLocation::CallData, "");
+			solAssert(toArrayType.isDynamicallySized(), "");
+
+			Whiskers templ(R"(
+				function <functionName>(offset, length) -> converted {
+					converted := <allocateMemoryArray>(length)
+					<copyToMemory>(offset, add(converted, 0x20), length)
+				}
+			)");
+			templ("functionName", functionName);
+			templ("allocateMemoryArray", allocateMemoryArrayFunction(toArrayType));
+			templ("copyToMemory", copyToMemoryFunction(fromArrayType.location() == DataLocation::CallData));
+			return templ.render();
+		}
+
 		solUnimplementedAssert(
 			_from.category() == Type::Category::StringLiteral,
 			"Type conversion " + _from.toString() + " -> " + _to.toString() + " not yet implemented."
