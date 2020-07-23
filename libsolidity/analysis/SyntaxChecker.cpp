@@ -229,24 +229,6 @@ bool SyntaxChecker::visit(Literal const& _literal)
 				"Non-Unicode characters found"
 			);
 	}
-	else if (_literal.token() == Token::StringLiteral)
-	{
-		auto isValidASCII = [](string const& value) -> bool {
-			for (char const v: value) {
-				if (static_cast<unsigned>(v) > 0x7f)
-					return false;
-			}
-			return true;
-		};
-
-		// Ensure it does not contain non-ASCII characters.
-		if (!isValidASCII(_literal.value()))
-			m_errorReporter.syntaxError(
-				5811_error,
-				_literal.location(),
-				"Non-ASCII characters found"
-			);
-	}
 
 	if (_literal.token() != Token::Number)
 		return true;
