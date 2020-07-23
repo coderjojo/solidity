@@ -20,6 +20,3 @@ contract test {
     }
 }
 // ----
-// SyntaxError 5811: (233-247): Non-ASCII characters found
-// SyntaxError 5811: (361-375): Non-ASCII characters found
-// SyntaxError 5811: (483-503): Non-ASCII characters found
