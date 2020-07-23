@@ -686,6 +686,10 @@ void Scanner::scanToken()
 				}
 				else if (token == Token::Unicode)
 				{
+					// reset
+					m = 0;
+					n = 0;
+
 					// Special quoted hex string must follow
 					if (m_char == '"' || m_char == '\'')
 						token = scanString(true);
