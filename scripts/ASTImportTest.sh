@@ -42,7 +42,8 @@ function testImportExportEquivalence {
         then
             # For investigating, use exit 1 here so the script stops at the
             # first failing test
-            # exit 1
+            echo "$solfile $1 $2 failed"
+            exit 1
             FAILED=$((FAILED + 1))
             return 1
         fi
@@ -66,7 +67,7 @@ function testImportExportEquivalence {
         TESTED=$((TESTED + 1))
         rm expected.json obtained.json
     else
-        echo "contract $solfile could not be compiled "
+        # echo "contract $solfile could not be compiled "
         UNCOMPILABLE=$((UNCOMPILABLE + 1))
     fi
     # return 0
