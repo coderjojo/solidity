@@ -66,7 +66,7 @@ function testImportExportEquivalence {
         TESTED=$((TESTED + 1))
         rm expected.json obtained.json
     else
-        # echo "contract $solfile could not be compiled "
+        echo "contract $solfile could not be compiled "
         UNCOMPILABLE=$((UNCOMPILABLE + 1))
     fi
     # return 0
