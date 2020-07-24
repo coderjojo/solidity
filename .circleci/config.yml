@@ -23,6 +23,9 @@ parameters:
     type: string
     default: "solbuildpackpusher/solidity-buildpack-deps@sha256:d557d015918c3cf68b0d22839bab41013f0757b651a7fef21595f89721dbebcc"
 
+orbs:
+  win: circleci/windows@2.2.0
+
 defaults:
 
   # --------------------------------------------------------------------------
@@ -257,6 +260,46 @@ defaults:
 
 # -----------------------------------------------------------------------------------------------
 jobs:
+
+  b_windows:
+    executor:
+      name: win/default
+      shell: powershell.exe
+    steps:
+      - checkout
+      - run: systeminfo
+      - run:
+          name: "Check docker"
+          shell: powershell.exe
+          command: |
+            docker info
+            docker run hello-world:nanoserver-1809
+      - run:
+          name: "Get CMake"
+          shell: powershell.exe
+          command: |
+            $ProgressPreference = "SilentlyContinue"
+            Invoke-WebRequest -URI https://github.com/Kitware/CMake/releases/download/v3.16.4/cmake-3.16.4-win64-x64.zip -OutFile $Env:HOMEPATH\cmake-3.16.4-win64-x64.zip
+            Expand-Archive $Env:HOMEPATH\cmake-3.16.4-win64-x64.zip -DestinationPath "$Env:ProgramFiles"
+            Rename-Item "$Env:ProgramFiles\cmake-3.16.4-win64-x64" -NewName cmake
+            $Env:ProgramFiles\cmake --help
+            "$Env:ProgramFiles\cmake.exe" --version
+      - run:
+          name: "Install dependencies"
+          shell: powershell.exe
+          command: |
+            echo "Path:" $Env:Path
+            echo "Paths:" $Env:Paths
+            $env:Path+=";$Env:ProgramFiles\CMake\bin"; .\scripts\install_deps.bat
+      - run:
+          name: "Some tests"
+          shell: bash.exe
+          command: |
+            pwd
+            ls -lsHla
+            echo "$PATH"
+            cmake --version || true
+            cl || true
 
   chk_spelling:
     docker:
@@ -842,72 +885,74 @@ workflows:
 
   main:
     jobs:
-      # basic checks
-      - chk_spelling: *workflow_trigger_on_tags
-      - chk_coding_style: *workflow_trigger_on_tags
-      # DISABLED FOR 0.6.0 - chk_docs_examples: *workflow_trigger_on_tags
-      - chk_buglist: *workflow_trigger_on_tags
-      - chk_proofs: *workflow_trigger_on_tags
-      - chk_pylint: *workflow_trigger_on_tags
-      - chk_errorcodes: *workflow_trigger_on_tags
-      - chk_antlr_grammar: *workflow_trigger_on_tags
-      - chk_docs_pragma_min_version: *workflow_trigger_on_tags
+      - b_windows: *workflow_trigger_on_tags
 
-      # build-only
-      - b_docs: *workflow_trigger_on_tags
-      - b_archlinux: *workflow_trigger_on_tags
-      - b_ubu_cxx20: *workflow_trigger_on_tags
-      - b_ubu_ossfuzz: *workflow_trigger_on_tags
-
-      # OS/X build and tests
-      - b_osx: *workflow_trigger_on_tags
-      - t_osx_cli: *workflow_osx
-      - t_osx_soltest: *workflow_osx
-
-      # Ubuntu build and tests
-      - b_ubu: *workflow_trigger_on_tags
-      - b_ubu18: *workflow_trigger_on_tags
-      - t_ubu_cli: *workflow_ubuntu2004
-      - t_ubu_soltest: *workflow_ubuntu2004
-      - t_ubu_soltest_enforce_yul: *workflow_ubuntu2004
-      - b_ubu_clang: *workflow_trigger_on_tags
-      - t_ubu_clang_soltest: *workflow_ubuntu2004_clang
-
-      # Ubuntu fake release build and tests
-      - b_ubu_release: *workflow_trigger_on_tags
-      - t_ubu_release_cli: *workflow_ubuntu2004_release
-      - t_ubu_release_soltest: *workflow_ubuntu2004_release
-
-      # ASan build and tests
-      - b_ubu_asan: *workflow_trigger_on_tags
-      - b_ubu_asan_clang: *workflow_trigger_on_tags
-      - t_ubu_asan_constantinople: *workflow_ubuntu2004_asan
-      - t_ubu_asan_constantinople_clang: *workflow_ubuntu2004_asan_clang
-      - t_ubu_asan_cli: *workflow_ubuntu2004_asan
-
-      # Emscripten build and selected tests
-      - b_ems: *workflow_trigger_on_tags
-      - t_ems_solcjs: *workflow_emscripten
-      - t_ems_compile_ext_colony: *workflow_emscripten
-      - t_ems_compile_ext_gnosis: *workflow_emscripten
-      - t_ems_compile_ext_zeppelin: *workflow_emscripten
-
-  nightly:
-
-    triggers:
-      - schedule:
-          cron: "0 0 * * *"
-          filters:
-            branches:
-              only:
-                - develop
-                - develop_060
-
-    jobs:
-      # OSSFUZZ builds and (regression) tests
-      - b_ubu_ossfuzz: *workflow_trigger_on_tags
-      - t_ubu_ossfuzz: *workflow_ubuntu1604_ossfuzz
-
-      # Code Coverage enabled build and tests
-      - b_ubu_codecov: *workflow_trigger_on_tags
-      - t_ubu_codecov: *workflow_ubuntu2004_codecov
+  #     # basic checks
+  #     - chk_spelling: *workflow_trigger_on_tags
+  #     - chk_coding_style: *workflow_trigger_on_tags
+  #     # DISABLED FOR 0.6.0 - chk_docs_examples: *workflow_trigger_on_tags
+  #     - chk_buglist: *workflow_trigger_on_tags
+  #     - chk_proofs: *workflow_trigger_on_tags
+  #     - chk_pylint: *workflow_trigger_on_tags
+  #     - chk_errorcodes: *workflow_trigger_on_tags
+  #     - chk_antlr_grammar: *workflow_trigger_on_tags
+  #     - chk_docs_pragma_min_version: *workflow_trigger_on_tags
+  #
+  #     # build-only
+  #     - b_docs: *workflow_trigger_on_tags
+  #     - b_archlinux: *workflow_trigger_on_tags
+  #     - b_ubu_cxx20: *workflow_trigger_on_tags
+  #     - b_ubu_ossfuzz: *workflow_trigger_on_tags
+  #
+  #     # OS/X build and tests
+  #     - b_osx: *workflow_trigger_on_tags
+  #     - t_osx_cli: *workflow_osx
+  #     - t_osx_soltest: *workflow_osx
+  #
+  #     # Ubuntu build and tests
+  #     - b_ubu: *workflow_trigger_on_tags
+  #     - b_ubu18: *workflow_trigger_on_tags
+  #     - t_ubu_cli: *workflow_ubuntu2004
+  #     - t_ubu_soltest: *workflow_ubuntu2004
+  #     - t_ubu_soltest_enforce_yul: *workflow_ubuntu2004
+  #     - b_ubu_clang: *workflow_trigger_on_tags
+  #     - t_ubu_clang_soltest: *workflow_ubuntu2004_clang
+  #
+  #     # Ubuntu fake release build and tests
+  #     - b_ubu_release: *workflow_trigger_on_tags
+  #     - t_ubu_release_cli: *workflow_ubuntu2004_release
+  #     - t_ubu_release_soltest: *workflow_ubuntu2004_release
+  #
+  #     # ASan build and tests
+  #     - b_ubu_asan: *workflow_trigger_on_tags
+  #     - b_ubu_asan_clang: *workflow_trigger_on_tags
+  #     - t_ubu_asan_constantinople: *workflow_ubuntu2004_asan
+  #     - t_ubu_asan_constantinople_clang: *workflow_ubuntu2004_asan_clang
+  #     - t_ubu_asan_cli: *workflow_ubuntu2004_asan
+  #
+  #     # Emscripten build and selected tests
+  #     - b_ems: *workflow_trigger_on_tags
+  #     - t_ems_solcjs: *workflow_emscripten
+  #     - t_ems_compile_ext_colony: *workflow_emscripten
+  #     - t_ems_compile_ext_gnosis: *workflow_emscripten
+  #     - t_ems_compile_ext_zeppelin: *workflow_emscripten
+  #
+  # nightly:
+  #
+  #   triggers:
+  #     - schedule:
+  #         cron: "0 0 * * *"
+  #         filters:
+  #           branches:
+  #             only:
+  #               - develop
+  #               - develop_060
+  #
+  #   jobs:
+  #     # OSSFUZZ builds and (regression) tests
+  #     - b_ubu_ossfuzz: *workflow_trigger_on_tags
+  #     - t_ubu_ossfuzz: *workflow_ubuntu1604_ossfuzz
+  #
+  #     # Code Coverage enabled build and tests
+  #     - b_ubu_codecov: *workflow_trigger_on_tags
+  #     - t_ubu_codecov: *workflow_ubuntu2004_codecov
