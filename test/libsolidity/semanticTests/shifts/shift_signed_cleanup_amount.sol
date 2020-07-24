@@ -10,6 +10,7 @@ contract C {
 }
 
 // ====
+// compileToEwasm: also
 // compileViaYul: also
 // ----
 // f(uint256,int8): 0x1234, 0x0 -> FAILURE

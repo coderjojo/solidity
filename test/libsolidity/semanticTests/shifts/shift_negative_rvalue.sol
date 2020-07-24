@@ -9,6 +9,7 @@ contract C {
 }
 
 // ====
+// compileToEwasm: also
 // compileViaYul: also
 // ----
 // f(int256,int256): 1, -1 -> FAILURE

@@ -7,6 +7,7 @@ contract C {
     }
 }
 // ====
+// compileToEwasm: also
 // compileViaYul: also
 // ----
 // f(int32,int32): 0xffffff99, 0x00 -> FAILURE
